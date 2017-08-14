@@ -35,14 +35,9 @@ for (var i = 3; i < nodeArgs.length; i++) {
 }
 
 
-//Callback functions for Twitter: 
-var error = function (err, response, body) {
-	console.log('ERROR [%s]', err);
-};
-var success = function (data) {
-	console.log('Data [%s]', data);
-};
 
+
+//Twitter variables: 
 var Twitter = require('twitter-js-client').Twitter;
 var twitter = new Twitter(twitterID);
 
@@ -50,8 +45,6 @@ var twitter = new Twitter(twitterID);
 //Spotify variables
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify(spotifyID);
-
-
 
 
 // Switch/Case statements to activate a function.
@@ -73,33 +66,34 @@ switch (action) {
     break;
 }
 
+
 // If the "my-tweets" argument was called, activate "myTweets" function
+function myTweets() {
 
-// function myTweets() {
+	//Callback functions defined in variables.
+	var error = function (err, response, body) {
+		console.log('ERROR [%s]', err);
+	};
 
-// 	var displayTweets = twitter.getHomeTimeline({ count: '2'}, error, success);
-// 	JSON.stringify(displayTweets, null, 2);
-// }
+	var success = function (data) {
+		var parseData = JSON.parse(data);
+		for (var i = 0; i < data.length; i++) {
+			console.log("Tweet: " + parseData[i].text);
+			console.log("Time: " + parseData[i].created_at);
+			console.log(" ");
+		}
+	};
+
+	twitter.getHomeTimeline({ count: '21'}, error, success);
+	
+}
 
 
 
-// 	console.log(JSON.stringify(displayTweets, null, 2));
-  
-//     if (error) {
-//     	return console.log(error);
-//     }
-//     if (success) {
-//     	return console.log(JSON.stringify(success));
-//     }
-
-
-
-// WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// If the "spotify-this-song" argument was called, activate "spotifyThisSong" function
 function spotifyThisSong() {
 	
-
-
-	if (songTitle == null) {
+	if (songTitle === "") {
 		 spotify.search({ type: 'track', query: 'The Sign Ace of Base', limit: 20 }, function(err, data) {
 		 	var artistName = "Artist(s): " + data.tracks.items[0].artists[0].name;
 			var songName = "Song Title: " + data.tracks.items[0].name;
@@ -123,11 +117,6 @@ function spotifyThisSong() {
 				  if (err) {
 				    console.log(err);
 				  }
-
-				  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
-				  // else {
-				  //   console.log("Content Added!");
-				  // }
 
 				});
 
@@ -154,15 +143,10 @@ function spotifyThisSong() {
 
 				fs.appendFile('log.txt', spotifyLog, function(err) {
 
-				  // If an error was experienced we say it.
+				  // If an error was experienced in writing to log.txt:
 				  if (err) {
 				    console.log(err);
 				  }
-
-				  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
-				  // else {
-				  //   console.log("Content Added!");
-				  // }
 
 				});
 
@@ -175,12 +159,17 @@ function spotifyThisSong() {
 
 
 
-//First part is WORKING!!!!  But not able to get "Mr. Nobody" title to show up properly if nothing typed in.
+// If the "movie-this" argument was called, activate "movieThis" function
 function movieThis() {
 
+// If user types nothing, then make the movieName variable for Mr. Nobody.
+if (movieName === "") {
+	movieName = "mr+nobody";
+}
 
 //run a request to the OMDB API with the movie specified
 var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=40e9cece";
+
 console.log(queryUrl);
 	request(queryUrl, function(error, response, body) {
 	  if (!error && response.statusCode === 200) {
@@ -192,41 +181,16 @@ console.log(queryUrl);
 	    console.log("Language of the movie: " + JSON.parse(body).Language);
 	    console.log("Plot of the movie: " + JSON.parse(body).Plot);
 	    console.log("Actors in the movie: " + JSON.parse(body).Actors);
-	    // * Title of the movie.
-		// * Year the movie came out.
-		// * IMDB Rating of the movie.
-		// * Rotten Tomatoes Rating of the movie.
-		// * Country where the movie was produced.
-		// * Language of the movie.
-		// * Plot of the movie.
-		// * Actors in the movie.
+	   
 	  }
 
-	 //  else {
-	 //  	var queryUrl = "http://www.omdbapi.com/?t=mr+nobody&y=&plot=short&apikey=40e9cece";
-		// console.log(queryUrl);
-		// 	request(queryUrl, function(error, response, body) {
-		// 	  	console.log("Title of the movie: " + JSON.parse(body).Title);
-		// 	    console.log("Year the movie came out: " + JSON.parse(body).Year);
-		// 	    console.log("IMDB Rating of the movie: " + JSON.parse(body).imdbRating);
-		// 	    console.log("Rotton Tomatoes Rating of the movie: " + JSON.parse(body).Ratings[1].Value);
-		// 	    console.log("Country where the movie was produced: " + JSON.parse(body).Country);
-		// 	    console.log("Language of the movie: " + JSON.parse(body).Language);
-		// 	    console.log("Plot of the movie: " + JSON.parse(body).Plot);
-		// 	    console.log("Actors in the movie: " + JSON.parse(body).Actors);
-	 //  		});
-	 //  }
-
-	  
-
 	});
-
 
 }
 
 
 
-//WORKING!!!!!!!!!!!!!!!!!!!!
+// If the "do-what-it-says" argument was called, activate "doWhatItSays" function
 function doWhatItSays() {
 	// NOTE TO SELF: this is what is inside random.txt:  spotify-this-song,"I Want it That Way"
 	fs.readFile("random.txt", "utf8", function(error, data) {
@@ -235,19 +199,13 @@ function doWhatItSays() {
 		if (error) {
 			return console.log(error);
 		}
-		// console.log(data);
 
 		// Split the data by commas (to make it more readable and to work with it)
 		var dataArr = data.split(",");
 
-		// console.log(dataArr);
-		// console.log(dataArr[0]);
-		// console.log(dataArr[1]);
-
 		action = dataArr[0];
 		songTitle = dataArr[1];
 		spotifyThisSong();
-		
 
 	});
 

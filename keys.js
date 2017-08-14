@@ -1,4 +1,4 @@
-console.log('this is loaded');
+// console.log('this is loaded');
 
 exports.twitterKeys = {
   consumerKey: '2TgEb5vWJLWnxrf47K0sNIacl',
